@@ -251,7 +251,7 @@ if [ "${TRAEFIK_ETCD_ENABLED}" == "true" ]; then
   endpoint = \"${TRAEFIK_ETCD_ENDPOINT}\"
   watch = true
   prefix = \"/traefik\"
-  useAPIV3 = false
+  useAPIV3 = true
 "
 
 fi
