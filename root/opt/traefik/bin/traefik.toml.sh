@@ -262,7 +262,6 @@ if [ "${TRAEFIK_HTTPS_ENABLE}" == "true" ] || [ "${TRAEFIK_HTTPS_ENABLE}" == "on
     TRAEFIK_ACME_CFG="\
 [acme]
   email = \"${TRAEFIK_ACME_EMAIL}\"
-  # storage = \"${SERVICE_HOME}/acme/acme.json\"
   OnHostRule = ${TRAEFIK_ACME_ONHOSTRULE}
   caServer = \"${TRAEFIK_ACME_CASERVER}\"
   entryPoint = \"https\"
@@ -271,7 +270,6 @@ if [ "${TRAEFIK_HTTPS_ENABLE}" == "true" ] || [ "${TRAEFIK_HTTPS_ENABLE}" == "on
     if [ "${TRAEFIK_ETCD_ENABLED}" == "true" ]; then
         TRAEFIK_ACME_CFG=${TRAEFIK_ACME_CFG}"\
   storage = \"traefik/acme/account\" # the key where to store your certificates in the KV store
-  storageFile = \"${SERVICE_HOME}/acme/acme.json\" # your old certificates store
 "
     else
         TRAEFIK_ACME_CFG=${TRAEFIK_ACME_CFG}"\
