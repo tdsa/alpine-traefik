@@ -247,42 +247,11 @@ TRAEFIK_ETCD_CFG=""
 if [ "${TRAEFIK_ETCD_ENABLED}" == "true" ]; then
 
     TRAEFIK_ETCD_CFG="\
-################################################################
-# Etcd configuration backend
-################################################################
-
-# Enable Etcd configuration backend.
 [etcd]
-
-# Etcd server endpoint.
-#
-# Required
-# Default: \"127.0.0.1:2379\"
-#
-endpoint = \"${TRAEFIK_ETCD_ENDPOINT}\"
-
-# Enable watch Etcd changes.
-#
-# Optional
-# Default: true
-#
-watch = true
-
-# Prefix used for KV store.
-#
-# Optional
-# Default: \"/traefik\"
-#
-prefix = \"/traefik\"
-
-# Force to use API V3 (otherwise still use API V2)
-#
-# Deprecated
-#
-# Optional
-# Default: false
-#
-useAPIV3 = false
+  endpoint = \"${TRAEFIK_ETCD_ENDPOINT}\"
+  watch = true
+  prefix = \"/traefik\"
+  useAPIV3 = false
 "
 
 fi
