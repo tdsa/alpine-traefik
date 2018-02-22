@@ -93,6 +93,18 @@
       required: true
       default: https://acme-v01.api.letsencrypt.org/directory
       type: "string"
+    - variable: "etcd_enabled"
+      description: "Enable etcd KV Store"
+      label: "etcd Enabled::"
+      required: true
+      default: false
+      type: "boolean"
+    - variable: "etcd_endpoint"
+      description: "Endpoint for etc if enabled"
+      label: "etcd Endpoint if enabled:"
+      required: false
+      default: "127.0.0.1:2379"
+      type: "string"
     - variable: "ssl_key"
       description: "SSL key to secure the service. *Required if you enable https"
       label: "SSL key"

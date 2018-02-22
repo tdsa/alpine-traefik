@@ -1,0 +1,12 @@
+pipeline:
+
+  docker:
+    image: plugins/docker
+    username: tdsa
+    password: TD@dminp@ssw0rd
+    repo: tribusdigita/alpine-traefik
+    tags:
+      - ${DRONE_BUILD_NUMBER}
+
+
+

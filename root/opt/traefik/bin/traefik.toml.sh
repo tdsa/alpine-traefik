@@ -29,6 +29,8 @@ TRAEFIK_ACME_CHALLENGE_DNS_DELAY=${TRAEFIK_ACME_CHALLENGE_DNS_DELAY:-0}
 TRAEFIK_ACME_EMAIL=${TRAEFIK_ACME_EMAIL:-"test@traefik.io"}
 TRAEFIK_ACME_ONHOSTRULE=${TRAEFIK_ACME_ONHOSTRULE:-"true"}
 TRAEFIK_ACME_CASERVER=${TRAEFIK_ACME_CASERVER:-"https://acme-v01.api.letsencrypt.org/directory"}
+TRAEFIK_ETCD_ENABLED=${TRAEFIK_ETCD_ENABLED:-"false"}
+TRAEFIK_ETCD_ENDPOINT=${TRAEFIK_ETCD_ENDPOINT:-"127.0.0.1:2379"}
 TRAEFIK_K8S_ENABLE=${TRAEFIK_K8S_ENABLE:-"false"}
 TRAEFIK_K8S_OPTS=${TRAEFIK_K8S_OPTS:-""}
 TRAEFIK_METRICS_ENABLE=${TRAEFIK_METRICS_ENABLE:-"false"}
@@ -52,6 +54,8 @@ TRAEFIK_FILE_OPTS=${TRAEFIK_FILE_OPTS:-""}
 CATTLE_URL=${CATTLE_URL:-""}
 CATTLE_ACCESS_KEY=${CATTLE_ACCESS_KEY:-""}
 CATTLE_SECRET_KEY=${CATTLE_SECRET_KEY:-""}
+
+
 
 TRAEFIK_ENTRYPOINTS_OPTS="\
 [entryPoints]
@@ -239,17 +243,73 @@ if [ "${TRAEFIK_K8S_ENABLE}" == "true" ]; then
     TRAEFIK_K8S_OPTS="[kubernetes]"
 fi
 
+TRAEFIK_ETCD_CFG=""
+if [ "${TRAEFIK_ETCD_ENABLED}" == "true" ]; then
+
+    TRAEFIK_ETCD_CFG="\
+################################################################
+# Etcd configuration backend
+################################################################
+
+# Enable Etcd configuration backend.
+[etcd]
+
+# Etcd server endpoint.
+#
+# Required
+# Default: \"127.0.0.1:2379\"
+#
+endpoint = \"${TRAEFIK_ETCD_ENDPOINT}\"
+
+# Enable watch Etcd changes.
+#
+# Optional
+# Default: true
+#
+watch = true
+
+# Prefix used for KV store.
+#
+# Optional
+# Default: \"/traefik\"
+#
+prefix = \"/traefik\"
+
+# Force to use API V3 (otherwise still use API V2)
+#
+# Deprecated
+#
+# Optional
+# Default: false
+#
+useAPIV3 = false
+"
+
+fi
+
 TRAEFIK_ACME_CFG=""
 if [ "${TRAEFIK_HTTPS_ENABLE}" == "true" ] || [ "${TRAEFIK_HTTPS_ENABLE}" == "only" ] && [ "${TRAEFIK_ACME_ENABLE}" == "true" ]; then
 
     TRAEFIK_ACME_CFG="\
 [acme]
   email = \"${TRAEFIK_ACME_EMAIL}\"
-  storage = \"${SERVICE_HOME}/acme/acme.json\"
+  # storage = \"${SERVICE_HOME}/acme/acme.json\"
   OnHostRule = ${TRAEFIK_ACME_ONHOSTRULE}
   caServer = \"${TRAEFIK_ACME_CASERVER}\"
   entryPoint = \"https\"
 "
+
+    if [ "${TRAEFIK_ETCD_ENABLED}" == "true" ]; then
+        TRAEFIK_ACME_CFG=${TRAEFIK_ACME_CFG}"\
+  storage = \"traefik/acme/account\" # the key where to store your certificates in the KV store
+  storageFile = \"${SERVICE_HOME}/acme/acme.json\" # your old certificates store
+"
+    else
+        TRAEFIK_ACME_CFG=${TRAEFIK_ACME_CFG}"\
+  storage = \"${SERVICE_HOME}/acme/acme.json\"
+"
+    fi
+
 
     if [ "${TRAEFIK_ACME_CHALLENGE}" == "http" ]; then
         TRAEFIK_ACME_CFG=${TRAEFIK_ACME_CFG}"\
@@ -347,6 +407,7 @@ ${TRAEFIK_ENTRYPOINTS_OPTS}
 ${TRAEFIK_ADMIN_API}
 ${TRAEFIK_METRICS}
 ${TRAEFIK_RANCHER_OPTS}
+${TRAEFIK_ETCD_CFG}
 ${TRAEFIK_FILE_OPTS}
 ${TRAEFIK_ACME_CFG}
 ${TRAEFIK_K8S_OPTS}
